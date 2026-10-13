@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<!-- Set default theme to dark -->
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRu-ART Stand-in</title>
+    <style>
+        /* --- CSS VARIABLES FOR THEMING --- */
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1c1e21;
+            --container-bg: #ffffff;
+            --border-color: #ccd0d5;
+            --input-bg: #ffffff;
+            --input-focus: #3a86ff;
+            --primary-color: #0056b3;
+            --primary-hover: #004494;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --danger-color: #dc3545;
+            --danger-hover: #c82333;
+            --warning-color: #d39e00;
+            --success-color: #28a745;
+            --success-hover: #218838;
+            --info-color: #17a2b8;
+            --info-hover: #138496;
+            --list-bg: #f8f9fa;
+            --list-border: #e4e6eb;
+            --text-muted: #65676b;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #18191a;
+            --text-color: #e4e6eb;
+            --container-bg: #242526;
+            --border-color: #3e4042;
+            --input-bg: #3a3b3c;
+            --input-focus: #4b93ff;
+            --primary-color: #3a86ff;
+            --primary-hover: #256ce1;
+            --shadow: 0 4px 12px rgba(0,0,0,0.3);
+            --warning-color: #ffc107;
+            --list-bg: #3a3b3c;
+            --list-border: #3e4042;
+            --text-muted: #b0b3b8;
+        }
+
+        /* --- GLOBAL STYLING --- */
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Top Navigation Bar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--container-bg);
+            padding: 15px 30px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .zulu-clock {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .theme-toggle {
+            background: transparent;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        .theme-toggle:hover { border-color: var(--text-color); }
+
+        /* --- APP LAYOUT --- */
+        .main-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 40px 20px;
+        }
+        .container {
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: background-color 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        h2 { 
+            margin-top: 0; 
+            border-bottom: 2px solid var(--border-color); 
+            padding-bottom: 15px; 
+            font-size: 18px;
+            text-align: center;
+        }
+
+        /* Top Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+        }
+        
+        button.tool-btn {
+            background-color: var(--list-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        button.tool-btn:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+        button.tool-btn.danger:hover {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+
+        /* Summary Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 15px;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: var(--list-bg);
+            font-weight: 600;
+        }
+        
+        /* Time Threshold Colors */
+        .time-warning {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+        .time-danger {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        /* Grid for Position Tables */
+        .positions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .position-card {
+            background: var(--container-bg);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .position-card h3 {
+            margin: 0 0 5px 0;
+            text-align: center;
+            font-size: 16px;
+            color: var(--primary-color);
+        }
+
+        .exclude-toggle {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 10px;
+            color: var(--text-muted);
+        }
+        .exclude-toggle label {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .position-card table {
+            margin-top: 0;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        /* Form Inputs */
+        .input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+            font-family: inherit;
+            text-transform: uppercase;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--input-focus);
+            box-shadow: 0 0 0 3px rgba(58, 134, 255, 0.2);
+        }
+
+        /* Buttons */
+        button.btn-add {
+            background-color: var(--success-color);
+            color: #ffffff;
+            border: none;
+            padding: 8px 12px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+        button.btn-add:hover { background-color: var(--success-hover); }
+        button.btn-add:active { transform: scale(0.98); }
+
+        button.delete-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            opacity: 0.8;
+        }
+        button.delete-btn:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        /* --- CUSTOM MODAL --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .modal-box {
+            background: var(--container-bg);
+            color: var(--text-color);
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            animation: modalPop 0.2s ease-out;
+        }
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-box p {
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: opacity 0.2s;
+        }
+        .modal-btn:hover { opacity: 0.8; }
+        .modal-btn-confirm { background: var(--primary-color); color: white; }
+        .modal-btn-cancel { background: var(--list-bg); color: var(--text-color); border: 1px solid var(--border-color); }
+        .modal-btn-danger { background: var(--danger-color); color: white; }
+
+        /* --- PRINT STYLING --- */
+        @media print {
+            body { 
+                background: white !important; 
+                color: black !important; 
+            }
+            .navbar, .toolbar, .input-row, .exclude-toggle, #themeToggleBtn, #summaryContainer, .delete-btn, .modal-overlay { 
+                display: none !important; 
+            }
+            .position-card {
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                break-inside: avoid;
+            }
+            th { background-color: #eee !important; color: black !important; }
+            .time-warning, .time-danger { color: black !important; }
+            .main-layout { gap: 10px; padding: 0; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- TOP NAV -->
+    <div class="navbar">
+        <div class="nav-left">
+            <h1>CRu-ART Stand-in</h1>
+            <div id="zuluClock" class="zulu-clock">0000Z</div>
+        </div>
+        <button class="theme-toggle" id="themeToggleBtn" onclick="toggleTheme()">☀️ Light Mode</button>
+    </div>
+
+    <div class="main-layout">
+        
+        <!-- DATA MANAGEMENT TOOLBAR -->
+        <div class="toolbar">
+            <button class="tool-btn" onclick="exportCSV()">📥 Export to Spreadsheet (CSV)</button>
+            <button class="tool-btn" onclick="document.getElementById('csvFileInput').click()">📤 Import CSV to Restore</button>
+            <button class="tool-btn" onclick="window.print()">🖨️ Print Document</button>
+            <button class="tool-btn danger" onclick="clearAllData()">🗑️ Clear All Data</button>
+            
+            <!-- Hidden File Input for CSV Import -->
+            <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importCSV(event)">
+        </div>
+
+        <!-- MASTER SUMMARY TABLE -->
+        <div class="container" id="summaryContainer">
+            <h2>Active Positions Summary (Oldest Sign-On Top)</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Initials</th>
+                        <th>Sign On (Zulu)</th>
+                        <th>Time on Position (HH:MM)</th>
+                    </tr>
+                </thead>
+                <tbody id="summaryTableBody">
+                    <tr><td colspan="4" style="color: var(--text-muted);">No entries yet.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- POSITIONS GRID -->
+        <div class="positions-grid" id="positionsGrid">
+            <!-- Position cards generated by JS -->
+        </div>
+
+    </div>
+
+    <!-- CUSTOM THEMED MODAL -->
+    <div id="customModalOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <p id="modalMessage"></p>
+            <div class="modal-buttons" id="modalButtons">
+                <!-- Buttons injected via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- APP LOGIC -->
+    <script>
+        // --- CUSTOM UI MODAL LOGIC ---
+        function showModal(message, type) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('customModalOverlay');
+                const msgEl = document.getElementById('modalMessage');
+                const btnContainer = document.getElementById('modalButtons');
+
+                msgEl.innerText = message;
+                btnContainer.innerHTML = ''; 
+
+                if (type === 'alert') {
+                    const btn = document.createElement('button');
+                    btn.className = 'modal-btn modal-btn-confirm';
+                    btn.innerText = 'OK';
+                    btn.onclick = () => { overlay.style.display = 'none'; resolve(true); };
+                    btnContainer.appendChild(btn);
+                } else if (type === 'confirm' || type === 'danger') {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'modal-btn modal-btn-cancel';
+                    cancelBtn.innerText = 'Cancel';
+                    cancelBtn.onclick = () => { overlay.style.display = 'none'; resolve(false); };
+
+                    const confirmBtn = document.createElement('button');
+                    confirmBtn.className = type === 'danger' ? 'modal-btn modal-btn-danger' : 'modal-btn modal-btn-confirm';
+                    confirmBtn.innerText = type === 'danger' ? 'Delete Data' : 'Confirm';
+                    confirmBtn.onclick = () => { overlay.style.display = 'none'; resolve(true); };
+
+                    btnContainer.appendChild(cancelBtn);
+                    btnContainer.appendChild(confirmBtn);
+                }
+
+                overlay.style.display = 'flex';
+            });
+        }
+
+        // --- CLOCK LOGIC ---
+        function updateZuluClock() {
+            const now = new Date();
+            const hh = String(now.getUTCHours()).padStart(2, '0');
+            const mm = String(now.getUTCMinutes()).padStart(2, '0');
+            document.getElementById('zuluClock').innerText = `${hh}${mm}z`;
+        }
+        setInterval(updateZuluClock, 1000);
+        updateZuluClock();
+
+        // --- THEME LOGIC ---
+        function toggleTheme() {
+            const htmlTag = document.documentElement;
+            const toggleBtn = document.getElementById('themeToggleBtn');
+            if (htmlTag.getAttribute('data-theme') === 'dark') {
+                htmlTag.setAttribute('data-theme', 'light');
+                toggleBtn.innerText = '🌙 Dark Mode';
+                localStorage.setItem('trackerTheme', 'light');
+            } else {
+                htmlTag.setAttribute('data-theme', 'dark');
+                toggleBtn.innerText = '☀️ Light Mode';
+                localStorage.setItem('trackerTheme', 'dark');
+            }
+        }
+
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('trackerTheme');
+            if (savedTheme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.getElementById('themeToggleBtn').innerText = '🌙 Dark Mode';
+            }
+        }
+
+        // --- APP DATA ---
+        const positions = ["L", "B", "D", "P", "S", "G", "F", "FDR", "XC", "LC", "GC", "FDT", "SR", "SR2", "SC"];
+        let positionData = {};
+        let excludedPositions = {};
+
+        // --- LOCAL STORAGE LOGIC ---
+        function initializeData() {
+            const savedData = localStorage.getItem('cruArtData');
+            if (savedData) {
+                try { positionData = JSON.parse(savedData); } catch(e) {}
+            } else {
+                positions.forEach(pos => positionData[pos] = []);
+            }
+
+            const savedExclusions = localStorage.getItem('cruArtExclusions');
+            if (savedExclusions) {
+                try { excludedPositions = JSON.parse(savedExclusions); } catch(e) {}
+            } else {
+                positions.forEach(pos => excludedPositions[pos] = false);
+            }
+        }
+
+        function saveDataLocally() {
+            localStorage.setItem('cruArtData', JSON.stringify(positionData));
+            localStorage.setItem('cruArtExclusions', JSON.stringify(excludedPositions));
+        }
+
+        // --- DATA MANAGEMENT FUNCTIONS ---
+        function exportCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Position,Initials,Sign-On Time(z)\n";
+            
+            positions.forEach(pos => {
+                if(positionData[pos] && positionData[pos].length > 0) {
+                    positionData[pos].forEach(entry => {
+                        csvContent += `${pos},${entry.initials},${entry.zulu}\n`;
+                    });
+                }
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "CRu-ART_Tracker_Export.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function importCSV(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const confirmed = await showModal("Importing this CSV will overwrite your current active data. Do you want to continue?", "danger");
+            
+            if (!confirmed) {
+                event.target.value = ''; 
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const text = e.target.result;
+                const lines = text.split('\n');
+                
+                positions.forEach(pos => positionData[pos] = []);
+
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const parts = line.split(',');
+                    if (parts.length >= 3) {
+                        const pos = parts[0].trim();
+                        const initials = parts[1].trim();
+                        const zulu = parts[2].trim();
+                        
+                        if (positions.includes(pos)) {
+                            positionData[pos].push({ initials, zulu });
+                        }
+                    }
+                }
+                
+                saveDataLocally();
+                renderPositionCards();
+                updateSummaryTable();
+                await showModal("Data successfully restored from CSV!", "alert");
+                
+                event.target.value = ''; 
+            };
+            
+            reader.readAsText(file);
+        }
+
+        async function clearAllData() {
+            const confirmed = await showModal("Are you sure you want to clear ALL table entries? This cannot be undone.", "danger");
+            if(confirmed) {
+                positions.forEach(pos => positionData[pos] = []);
+                saveDataLocally();
+                renderPositionCards();
+                updateSummaryTable();
+            }
+        }
+
+        function toggleExclusion(pos) {
+            excludedPositions[pos] = !excludedPositions[pos];
+            saveDataLocally();
+            updateSummaryTable();
+        }
+
+        // --- CORE RENDER FUNCTIONS ---
+        function generateTableRows(pos) {
+            if (!positionData[pos] || positionData[pos].length === 0) {
+                return `<tr><td colspan="3" style="color: var(--text-muted); font-size: 13px;">No entries</td></tr>`;
+            }
+            return positionData[pos].map((entry, index) => `
+                <tr>
+                    <td>${entry.initials}</td>
+                    <td>${entry.zulu}</td>
+                    <td style="width: 25px;"><button class="delete-btn" onclick="deleteEntry('${pos}', ${index})" title="Delete Entry">❌</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPositionCards() {
+            const grid = document.getElementById('positionsGrid');
+            grid.innerHTML = '';
+
+            positions.forEach(pos => {
+                const card = document.createElement('div');
+                card.className = 'position-card';
+                
+                const isChecked = excludedPositions[pos] ? "checked" : "";
+
+                card.innerHTML = `
+                    <h3>${pos}</h3>
+                    <div class="exclude-toggle">
+                        <label>
+                            <input type="checkbox" onchange="toggleExclusion('${pos}')" ${isChecked}> 
+                            Exclude from Summary
+                        </label>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Initials</th>
+                                <th>Sign-On</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody-${pos}">
+                            ${generateTableRows(pos)}
+                        </tbody>
+                    </table>
+                    <div class="input-row">
+                        <input type="text" id="init-${pos}" placeholder="Init" maxlength="2" autocomplete="off"
+                            oninput="handleInitialsInput(this, '${pos}')" 
+                            onkeydown="handleInitialsKeydown(event, '${pos}')">
+                        <input type="text" id="zulu-${pos}" placeholder="HHMM" maxlength="4" autocomplete="off" 
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                            onkeydown="if(event.key === 'Enter') addEntry('${pos}')">
+                        <button class="btn-add" onclick="addEntry('${pos}')">+</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function handleInitialsInput(inputElement, pos) {
+            inputElement.value = inputElement.value.replace(/[^a-zA-Z]/g, '').toUpperCase();
+            if (inputElement.value.length === 2) {
+                document.getElementById(`zulu-${pos}`).focus();
+            }
+        }
+
+        function handleInitialsKeydown(event, pos) {
+            if (event.key === 'Enter') {
+                document.getElementById(`zulu-${pos}`).focus();
+            }
+        }
+
+        async function addEntry(pos) {
+            const initialsInput = document.getElementById(`init-${pos}`);
+            const zuluInput = document.getElementById(`zulu-${pos}`);
+            
+            const initials = initialsInput.value.trim().toUpperCase();
+            const zulu = zuluInput.value.trim();
+
+            if (!initials || zulu.length !== 4) {
+                await showModal("Please enter valid initials and a 4-digit Zulu time.", "alert");
+                return;
+            }
+
+            if (!positionData[pos]) positionData[pos] = [];
+            positionData[pos].push({ initials, zulu });
+            
+            initialsInput.value = '';
+            zuluInput.value = '';
+
+            saveDataLocally();
+            updateSpecificTable(pos);
+            updateSummaryTable();
+            
+            initialsInput.focus();
+        }
+
+        async function deleteEntry(pos, index) {
+            const confirmed = await showModal("Are you sure you want to delete this specific entry?", "danger");
+            if (confirmed) {
+                positionData[pos].splice(index, 1);
+                saveDataLocally();
+                updateSpecificTable(pos);
+                updateSummaryTable();
+            }
+        }
+
+        function updateSpecificTable(pos) {
+            const tbody = document.getElementById(`tbody-${pos}`);
+            if (tbody) tbody.innerHTML = generateTableRows(pos);
+        }
+
+        // --- TIME CALCULATION LOGIC ---
+        function calculateElapsedMinutes(zuluStr) {
+            const now = new Date();
+            const currentUTCHours = now.getUTCHours();
+            const currentUTCMinutes = now.getUTCMinutes();
+            const currentTotalMinutes = (currentUTCHours * 60) + currentUTCMinutes;
+
+            const inputHours = parseInt(zuluStr.substring(0, 2), 10);
+            const inputMinutes = parseInt(zuluStr.substring(2, 4), 10);
+            let inputTotalMinutes = (inputHours * 60) + inputMinutes;
+
+            if (inputTotalMinutes > currentTotalMinutes) {
+                inputTotalMinutes -= (24 * 60); 
+            }
+
+            return currentTotalMinutes - inputTotalMinutes;
+        }
+
+        function formatMinutes(totalMinutes) {
+            if (totalMinutes < 0) return "00:00"; 
+            const h = Math.floor(totalMinutes / 60);
+            const m = totalMinutes % 60;
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        }
+
+        function updateSummaryTable() {
+            const summaryBody = document.getElementById('summaryTableBody');
+            let summaryArray = [];
+
+            positions.forEach(pos => {
+                if (excludedPositions[pos] === true) return; 
+
+                const entries = positionData[pos];
+                if (entries && entries.length > 0) {
+                    const lastEntry = entries[entries.length - 1];
+                    const elapsed = calculateElapsedMinutes(lastEntry.zulu);
+                    summaryArray.push({
+                        position: pos,
+                        initials: lastEntry.initials,
+                        zulu: lastEntry.zulu,
+                        elapsedMinutes: elapsed
+                    });
+                }
+            });
+
+            if (summaryArray.length === 0) {
+                summaryBody.innerHTML = '<tr><td colspan="4" style="color: var(--text-muted);">No active positions.</td></tr>';
+                return;
+            }
+
+            summaryArray.sort((a, b) => b.elapsedMinutes - a.elapsedMinutes);
+
+            summaryBody.innerHTML = '';
+            summaryArray.forEach((item) => {
+                let timeClass = '';
+                if (item.elapsedMinutes >= 90) {
+                    timeClass = 'time-danger'; 
+                } else if (item.elapsedMinutes >= 75) {
+                    timeClass = 'time-warning'; 
+                }
+                
+                summaryBody.innerHTML += `
+                    <tr>
+                        <td><strong>${item.position}</strong></td>
+                        <td>${item.initials}</td>
+                        <td>${item.zulu}</td>
+                        <td class="${timeClass}">${formatMinutes(item.elapsedMinutes)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Initialize App
+        window.onload = function() {
+            applySavedTheme();
+            initializeData();
+            renderPositionCards();
+            updateSummaryTable();
+            
+            setInterval(updateSummaryTable, 60000); 
+        }
+    </script>
+</body>
+</html>
